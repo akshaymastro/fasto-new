@@ -1,11 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React, {useState, useEffect} from 'react';
 import {NavigationContainer, useTheme} from '@react-navigation/native';
 import {View, Text, StyleSheet} from 'react-native';
@@ -16,35 +8,50 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import SplashScreen from './src/Components/SplashScreen';
 import Home from './src/Components/Home';
 import SignInScreen from './src/Components/User/Signin';
+import Otp from './src/Components/User/Signin/Otpscreen';
 import store from './src/redux/store';
 import {Provider} from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
+const AppTabs = createBottomTabNavigator();
+const AppTabsScreen = () => (
+  <AppTabs.Navigator>
+    <AppTabs.Screen
+      name="Contacts"
+      component={Home}
+      options={{
+        tabBarIcon: (props) => (
+          <Ionicons name="ios-contacts" size={props.size} color={props.color} />
+        ),
+      }}
+    />
+  </AppTabs.Navigator>
+);
 
-const StackNavigation = (props) => {
-  console.log(props.token, 'tokenenene');
-  return (
-    <Stack.Navigator>
-      {props.token !== null ? (
-        <Stack.Screen name="drawer" component={DrawerNav} />
-      ) : (
-        <Stack.Screen name="Sigin" component={SignInScreen} />
-      )}
-    </Stack.Navigator>
-  );
-};
+const AppDrawer = createDrawerNavigator();
+const AppDrawerScreen = () => (
+  <AppDrawer.Navigator drawerPosition="right" initialRouteName="Home">
+    <AppDrawer.Screen
+      name="Home"
+      component={Home}
+      options={{
+        gestureEnabled: true,
+      }}
+    />
+  </AppDrawer.Navigator>
+);
 
-const DrawerNav = () => {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Home" component={Home} />
-    </Drawer.Navigator>
-  );
-};
+const AuthStack = createStackNavigator();
+const AuthStackScreen = (props) => (
+  <AuthStack.Navigator initialRouteName={props.token ? 'drawer' : 'Sigin'}>
+    <AuthStack.Screen name="Sigin" component={SignInScreen} />
+    <AuthStack.Screen name="otp" component={Otp} />
+    <AuthStack.Screen name="drawer" component={AppDrawerScreen} />
+    <AuthStack.Screen name="tabs" component={AppTabsScreen} />
+  </AuthStack.Navigator>
+);
 
-const App = () => {
+export default function App() {
   const {colors} = useTheme();
   const [isLoading, setLoading] = useState(true);
   const [usertoken, setToken] = useState(null);
@@ -62,27 +69,29 @@ const App = () => {
     return new Promise((resolve) =>
       setTimeout(async () => {
         let token = await AsyncStorage.getItem('token');
-        console.log(token, 'tokenenne');
         setToken(token);
-
         resolve('result');
       }, 2000),
     );
   };
+
   return (
-    <>
-      {isLoading ? (
-        <SplashScreen />
-      ) : (
-        <Provider store={store}>
-          <NavigationContainer>
-            <StackNavigation token={usertoken} />
-          </NavigationContainer>
-        </Provider>
-      )}
-    </>
+    <Provider store={store}>
+      <NavigationContainer>
+        {isLoading ? (
+          <SplashScreen />
+        ) : usertoken !== null ? (
+          <>
+            <AppDrawerScreen />
+            {/* <AppTabsScreen /> */}
+          </>
+        ) : (
+          <AuthStackScreen token={usertoken} />
+        )}
+      </NavigationContainer>
+    </Provider>
   );
-};
+}
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -122,5 +131,3 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 });
-
-export default App;

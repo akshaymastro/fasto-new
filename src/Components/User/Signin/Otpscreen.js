@@ -131,13 +131,10 @@ const SignInScreen = ({navigation}) => {
     console.log(userDetail, 'userDetail');
     const res = await dispatch(userLogin({Mobile: userDetail}));
     await AsyncStorage.setItem('token', res?.token);
-    navigation.navigate('Home');
-  };
-
-  const Login = async () => {
-    dispatch(setUserDetail(data.username));
-    const res = await dispatch(sendOtp({Mobile: data.username}));
-    navigation.navigate('otp')
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) {
+      navigation.navigate('drawer');
+    }
   };
 
   //   const Register = async (GetNumber) => {
@@ -208,13 +205,12 @@ const SignInScreen = ({navigation}) => {
           <FontAwesome name="phone" color={colors.text} size={20} />
           <TextInput
             keyboardType="number-pad"
-            maxLength={10}
-            placeholder={view.viewPlaceholder}
+            maxLength={5}
+            placeholder="Enter Otp"
             style={[styles.textInput, {color: colors.text}]}
             autoCapitalize="none"
             onChangeText={(val) => {
-              textInputChange(val)
-               
+              OTPInput(val);
             }}
             onEndEditing={(e) => handleValiUser(e.nativeEvent.text)}
           />
@@ -224,19 +220,19 @@ const SignInScreen = ({navigation}) => {
             </Animatable.View>
           ) : null}
         </View>
-        {/* {data.isValidUser ? null : (
+        {data.isValidUser ? null : (
           <Animatable.View animation="fadeInLeft" duration={500}>
             <Text style={styles.errorMsg}>
               Username must be 4 charachters long
             </Text>
           </Animatable.View>
-        )} */}
+        )}
 
         <View style={styles.button}>
           <TouchableOpacity
             style={styles.signIn}
             onPress={() => {
-              Login()
+              Enter();
             }}>
             <LinearGradient
               colors={['#222546', '#222546']}

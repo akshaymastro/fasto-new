@@ -119,30 +119,10 @@ const SignInScreen = ({ navigation }) => {
     //     dispatch(Andar())
     // }
 
-    const Enter = async () => {
-        console.log(userDetail, "userDetail")
-        const res = await dispatch(userLogin({ Mobile: userDetail }))
-        await AsyncStorage.setItem('token', res?.token)
-        navigation.navigate('Drawer')
-    }
-
-
-
-
-
     const Login = async () => {
         dispatch(setUserDetail(data.username))
         const res = await dispatch(sendOtp({ Mobile: data.username }))
-        if (otp?.otp) {
-            setData({
-                check_textInputChange: false,
-                username: ''
-            })
-            changeView({
-                viewTitle: 'Enter OTP',
-                viewPlaceholder: ' _ _ _ _ _'
-            })
-        }
+        navigation.navigate('otp')
     }
 
     const Register = async (GetNumber) => {
@@ -216,11 +196,11 @@ const SignInScreen = ({ navigation }) => {
                     />
                     <TextInput
                         keyboardType="number-pad"
-                        maxLength={view.viewTitle === "Mobile no." ? 10 : 5}
+                        maxLength={10}
                         placeholder={view.viewPlaceholder}
                         style={[styles.textInput, { color: colors.text }]}
                         autoCapitalize="none"
-                        onChangeText={(val) => { view.viewTitle === "Mobile no." ? textInputChange(val) : OTPInput(val) }}
+                        onChangeText={(val) => textInputChange(val)}
                         onEndEditing={(e) => handleValiUser(e.nativeEvent.text)}
                     />
                     {data.check_textInputChange ?
@@ -233,26 +213,16 @@ const SignInScreen = ({ navigation }) => {
                         </Animatable.View>
                         : null}
                 </View>
-                {data.isValidUser ? null :
-                    <Animatable.View animation="fadeInLeft" duration={500}>
-                        <Text style={styles.errorMsg}>Username must be 4 charachters long</Text>
-                    </Animatable.View>
-                }
-
-
-
-
-
                 <View style={styles.button}>
                     <TouchableOpacity
                         style={styles.signIn}
-                        onPress={() => { view.viewTitle === 'Mobile no.' ? Login() : Enter() }}
+                        onPress={() => Login()}
                     >
                         <LinearGradient
                             colors={['#222546', '#222546']}
                             style={styles.signIn}
                         >
-                            <Text style={[styles.textSign, { color: '#fff' }]} >Sign In</Text>
+                            <Text style={[styles.textSign, { color: '#fff' }]} >Enter</Text>
 
                         </LinearGradient>
                     </TouchableOpacity>
